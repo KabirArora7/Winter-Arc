@@ -37,6 +37,29 @@ button { cursor: pointer; }
 .journey-track { position: relative; height: 9px; margin: 21px 12px 10px 0; border-radius: 99px; background: #e7ebe6; }
 .journey-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg,#a9c6bb,#627f70); transition: width .3s ease; }
 .journey-hut { position: absolute; top: 50%; right: -10px; display: grid; width: 30px; height: 30px; place-items: center; transform: translateY(-50%); border: 2px solid white; border-radius: 11px; background: #e5b978; color: #fffaf1; font-size: 20px; box-shadow: 0 3px 8px rgba(93,103,84,.16); }
+.couple-progress { margin-top: 18px; padding: 25px; }
+.couple-progress-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.goal-badge { flex: 0 0 auto; border: 1px solid #eee4d4; border-radius: 999px; padding: 9px 13px; background: #fbf5ea; color: #a47846; font-size: 11px; font-weight: 800; letter-spacing: .04em; }
+.couple-progress-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin-top: 19px; }
+.goal-card { min-width: 0; border: 1px solid #e8e5e0; border-radius: 20px; padding: 17px 18px 14px; background: #fffdfa; }
+.goal-card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.goal-person { display: flex; min-width: 0; align-items: center; gap: 10px; }
+.goal-avatar { display: grid; width: 38px; height: 38px; flex: 0 0 auto; place-items: center; border-radius: 14px; background: white; color: #526a72; font-family: Georgia,serif; font-size: 19px; box-shadow: 0 2px 8px rgba(44,63,71,.08); }
+.goal-person b { display: block; color: #354750; font-size: 14px; }
+.goal-person small { display: block; overflow: hidden; margin-top: 3px; color: #87918f; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.goal-total { flex: 0 0 auto; color: #93a09e; font-size: 10px; white-space: nowrap; }
+.goal-total strong { color: #344a53; font-size: 21px; letter-spacing: -.04em; }
+.goal-bar { position: relative; height: 13px; margin-top: 17px; overflow: visible; border: 1px solid rgba(255,255,255,.9); border-radius: 999px; background: #e9ecea; box-shadow: inset 0 1px 2px rgba(48,64,68,.07); }
+.goal-bar > span { position: relative; display: block; height: 100%; min-width: 0; border-radius: inherit; transition: width .65s cubic-bezier(.2,.8,.2,1); box-shadow: 0 2px 6px rgba(49,85,92,.16); }
+.goal-bar > span > i { position: absolute; top: 50%; right: 1px; display: grid; width: 19px; height: 19px; place-items: center; transform: translateY(-50%); border: 2px solid #fff; border-radius: 50%; background: inherit; color: white; font-size: 9px; font-style: normal; box-shadow: 0 1px 4px rgba(35,52,55,.18); }
+.ananya-progress { background: linear-gradient(145deg,#f0f7fc,#f8fbfd); }
+.ananya-progress .goal-avatar { color: #377cb4; }
+.ananya-progress .goal-bar > span { background: linear-gradient(90deg,#95c7ec,#4e9bd1); }
+.kabir-progress { background: linear-gradient(145deg,#eff7f0,#f9fcf8); }
+.kabir-progress .goal-avatar { color: #448364; }
+.kabir-progress .goal-bar > span { background: linear-gradient(90deg,#a8d6a9,#58a875); }
+.goal-bar-caption { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; color: #8c9896; font-size: 10px; }
+.goal-bar-caption b { color: #d6a366; }
 .dashboard-scene { min-height: 286px; }
 .dashboard-wash { background: linear-gradient(90deg, rgba(255,252,246,.96) 0%, rgba(255,251,246,.89) 34%, rgba(255,250,244,.50) 55%, rgba(255,250,244,.05) 77%); }
 .dashboard-copy { position: absolute; top: 28px; left: clamp(22px,4vw,46px); width: min(470px,57%); }
@@ -66,6 +89,13 @@ button { cursor: pointer; }
   .scene-caption { right: 13px; bottom: 13px; font-size: 10px; }
   .landing-panels { grid-template-columns: 1fr; gap: 13px; margin-top: 14px; }
   .panel-card { border-radius: 21px; padding: 19px; }
+  .couple-progress { margin-top: 14px; padding: 19px; }
+  .couple-progress-heading { align-items: flex-start; }
+  .couple-progress-heading .panel-subtitle { max-width: 290px; }
+  .goal-badge { padding: 7px 9px; font-size: 9px; }
+  .couple-progress-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
+  .goal-card { padding: 15px; }
+  .goal-total strong { font-size: 19px; }
   .dashboard-scene { min-height: 320px; }
   .dashboard-wash { background: linear-gradient(180deg,rgba(255,252,247,.94) 0%,rgba(255,251,246,.88) 49%,rgba(255,250,244,.1) 84%); }
   .dashboard-copy { top: 22px; left: 20px; width: calc(100% - 40px); }

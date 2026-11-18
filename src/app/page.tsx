@@ -9,13 +9,29 @@ import { CHALLENGE_END, CHALLENGE_START, challengeDay, formatDate, isChallengeDa
 
 type Profile = { id: string; name: string };
 type Habit = { id: string; code: string; name: string; description: string; default_points: number; display_order: number };
-type Entry = { id: string; habit_id: string; date: string; completed: boolean; default_points_snapshot: number; points_adjustment: number; adjustment_reason: string | null };
-type Adjustment = { id: string; date: string; points_change: number; reason: string | null };
+type Entry = { id: string; profile_id?: string; habit_id: string; date: string; completed: boolean; default_points_snapshot: number; points_adjustment: number; adjustment_reason: string | null };
+type Adjustment = { id: string; profile_id?: string; date: string; points_change: number; reason: string | null };
 type HabitState = { completed: boolean; adjustment: string; reason: string; saved?: Entry };
+
+function totalPointsForProfile(profileId: string, habits: Habit[], entries: Entry[], adjustments: Adjustment[]) {
+  const profileEntries = entries.filter((entry) => entry.profile_id === profileId);
+  const profileAdjustments = adjustments.filter((adjustment) => adjustment.profile_id === profileId);
+  const days = new Set([...profileEntries.map((entry) => entry.date), ...profileAdjustments.map((adjustment) => adjustment.date)]);
+  return [...days].reduce((total, day) => {
+    const byHabit = new Map(profileEntries.filter((entry) => entry.date === day).map((entry) => [entry.habit_id, entry]));
+    const dailyScore = calculateDailyScore(habits.map((habit) => {
+      const entry = byHabit.get(habit.id);
+      return { completed: entry?.completed ?? false, defaultPoints: Number(entry?.default_points_snapshot ?? habit.default_points), adjustment: Number(entry?.points_adjustment ?? 0) };
+    }), profileAdjustments.filter((adjustment) => adjustment.date === day).map((adjustment) => Number(adjustment.points_change)));
+    return total + dailyScore.finalScore;
+  }, 0);
+}
 
 export default function Home() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
+  const [profileTotals, setProfileTotals] = useState<Record<string, number>>({});
+  const [totalsError, setTotalsError] = useState("");
   const [profile, setProfile] = useState<Profile | null>(null);
   const [viewOnly, setViewOnly] = useState(false);
   const [date, setDate] = useState(localDateString());
@@ -31,14 +47,33 @@ export default function Home() {
 
   useEffect(() => {
     if (!supabase) { setSetupError("Connect Supabase to start tracking. Add your project URL and publishable key to .env.local, then restart the app and run the database migration."); return; }
+    const client = supabase;
     Promise.all([
-      supabase.from("profiles").select("id,name").order("name"),
-      supabase.from("habits").select("id,code,name,description,default_points,display_order").eq("active", true).order("display_order"),
+      client.from("profiles").select("id,name").order("name"),
+      client.from("habits").select("id,code,name,description,default_points,display_order").eq("active", true).order("display_order"),
     ]).then(([p, h]) => {
       if (p.error || h.error) { setSetupError(p.error?.message ?? h.error?.message ?? "Could not load setup data."); return; }
       setProfiles((p.data ?? []) as Profile[]); setHabits((h.data ?? []) as Habit[]);
     });
   }, []);
+
+  useEffect(() => {
+    if (profile || !supabase || profiles.length === 0 || habits.length === 0) return;
+    const client = supabase;
+    let cancelled = false;
+    setTotalsError("");
+    Promise.all([
+      client.from("daily_entries").select("id,profile_id,habit_id,date,completed,default_points_snapshot,points_adjustment,adjustment_reason"),
+      client.from("point_adjustments").select("id,profile_id,date,points_change,reason"),
+    ]).then(([entryResult, adjustmentResult]) => {
+      if (cancelled) return;
+      if (entryResult.error || adjustmentResult.error) { setTotalsError("Progress totals are temporarily unavailable."); return; }
+      const entries = (entryResult.data ?? []) as Entry[];
+      const adjustments = (adjustmentResult.data ?? []) as Adjustment[];
+      setProfileTotals(Object.fromEntries(profiles.map((person) => [person.id, totalPointsForProfile(person.id, habits, entries, adjustments)])));
+    });
+    return () => { cancelled = true; };
+  }, [profile, profiles, habits]);
 
   const loadDay = useCallback(async () => {
     if (!supabase || !profile || !isChallengeDate(date)) return;
@@ -172,6 +207,20 @@ export default function Home() {
           </section>
           <section className="landing-progress panel-card"><div className="section-eyebrow">The journey</div><div className="flex items-end justify-between gap-3"><div><h2>One day at a time</h2><p className="panel-subtitle">Every small win moves you closer to the lodge.</p></div><span className="day-count">{today < CHALLENGE_START ? "35" : today > CHALLENGE_END ? "35" : challengeDay(today)}<small> / 35</small></span></div><div className="journey-track"><div className="journey-fill" style={{ width: `${Math.max(0, Math.min(100, ((challengeDay(today) ?? (today > CHALLENGE_END ? 35 : 0)) / 35) * 100))}%` }}/><span className="journey-hut">⌂</span></div><div className="flex justify-between text-xs text-slate-400"><span>Trailhead · Nov 17</span><span>Warm lodge · Dec 21</span></div></section>
         </div>
+        <section className="couple-progress panel-card" aria-labelledby="couple-progress-heading">
+          <div className="couple-progress-heading"><div><div className="section-eyebrow">The summit goal</div><h2 id="couple-progress-heading">Your points are adding up</h2><p className="panel-subtitle">Each of you is working toward 1,225 points. Every step along the snowy trail counts.</p></div><span className="goal-badge">✦ 1,225 pts</span></div>
+          {totalsError ? <p className="mt-4 text-sm text-slate-500">{totalsError}</p> : <div className="couple-progress-grid">{profiles.map((person) => {
+            const points = profileTotals[person.id] ?? 0;
+            const percent = Math.min(100, Math.max(0, points / 1225 * 100));
+            const remaining = Math.max(0, 1225 - points);
+            const tone = person.name === "Ananya" ? "ananya-progress" : "kabir-progress";
+            return <div key={person.id} className={`goal-card ${tone}`}>
+              <div className="goal-card-top"><div className="goal-person"><span className="goal-avatar">{person.name.slice(0, 1)}</span><div><b>{person.name}</b><small>{remaining === 0 ? "Goal reached — amazing!" : `${remaining.toFixed(1).replace(/\.0$/, "")} points to go`}</small></div></div><div className="goal-total"><strong>{points.toFixed(1).replace(/\.0$/, "")}</strong><span> / 1,225</span></div></div>
+              <div className="goal-bar" role="progressbar" aria-label={`${person.name}'s progress toward 1,225 points`} aria-valuemin={0} aria-valuemax={1225} aria-valuenow={Math.min(1225, points)}><span style={{ width: `${percent}%` }}><i>✦</i></span></div>
+              <div className="goal-bar-caption"><span>{percent.toFixed(0)}% of the way</span><span>Keep going <b>♥</b></span></div>
+            </div>;
+          })}</div>}
+        </section>
         <p className="mt-6 text-center text-xs text-[#8799a4]">Made for the little wins that carry you through winter.</p>
       </div>
     </main>;
