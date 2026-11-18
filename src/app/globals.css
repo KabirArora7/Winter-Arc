@@ -2,6 +2,78 @@
 
 :root { color-scheme: light; }
 * { box-sizing: border-box; }
-body { margin: 0; background: #f3f6fa; color: #152238; font-family: Arial, Helvetica, sans-serif; }
+body { margin: 0; background: #f4f2ee; color: #263444; font-family: Arial, Helvetica, sans-serif; }
 button, input { font: inherit; }
 button { cursor: pointer; }
+
+.winter-page { position: relative; isolation: isolate; }
+.landing-page { min-height: 100vh; background: radial-gradient(ellipse at 15% 10%, #fffaf2 0, transparent 46%), linear-gradient(155deg, #f4f0eb 0%, #edf2ef 100%); }
+.dashboard-page { background: radial-gradient(ellipse at 92% 4%, rgba(235, 221, 205, .46), transparent 35%); }
+.scene-shell { position: relative; isolation: isolate; overflow: hidden; border: 1px solid rgba(255,255,255,.82); border-radius: 30px; background: #dce8ed; box-shadow: 0 22px 54px rgba(71, 88, 96, .12), 0 2px 6px rgba(71, 88, 96, .06); }
+.scene-art { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; }
+.scene-wash { position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, rgba(255,252,246,.93) 0%, rgba(255,251,246,.82) 33%, rgba(255,250,244,.35) 58%, rgba(255,250,244,0) 78%), linear-gradient(0deg, rgba(244,239,230,.2), transparent 45%); }
+.landing-scene { min-height: 380px; }
+.scene-copy { position: absolute; left: clamp(24px, 5vw, 64px); top: 50%; width: min(520px, 54%); transform: translateY(-50%); }
+.scene-kicker { display: inline-flex; align-items: center; gap: 8px; color: #55736f; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.landing-copy h1 { margin: 18px 0 12px; color: #263c4d; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(42px, 5.4vw, 70px); font-weight: 600; letter-spacing: -.055em; line-height: .99; }
+.landing-copy h1 em { color: #52756d; font-weight: 500; }
+.landing-copy p { max-width: 390px; margin: 18px 0 0; color: #526675; font-size: 16px; line-height: 1.7; }
+.scene-caption { position: absolute; right: 25px; bottom: 20px; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,.7); border-radius: 999px; padding: 9px 13px; background: rgba(255,250,241,.7); color: #526b71; font-size: 11px; font-weight: 700; backdrop-filter: blur(10px); }
+.caption-sparkle { color: #c78a50; font-size: 14px; }
+.landing-panels { display: grid; grid-template-columns: minmax(0,1.08fr) minmax(300px,.92fr); gap: 18px; margin-top: 20px; }
+.panel-card { border: 1px solid #e6e2db; border-radius: 25px; padding: 24px; background: rgba(255,255,255,.83); box-shadow: 0 8px 26px rgba(62,78,81,.055); backdrop-filter: blur(12px); }
+.section-eyebrow { margin-bottom: 8px; color: #79918c; font-size: 10px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
+.panel-card h2 { margin: 0; color: #293d4b; font-family: Georgia, 'Times New Roman', serif; font-size: 23px; font-weight: 600; letter-spacing: -.025em; }
+.panel-subtitle { margin: 6px 0 0; color: #75818a; font-size: 13px; line-height: 1.55; }
+.profile-tile { display: flex; width: 100%; align-items: center; gap: 12px; border: 1px solid #e6e1df; border-radius: 17px; padding: 14px; text-align: left; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+.profile-tile:hover { transform: translateY(-2px); border-color: #c8d5cf; box-shadow: 0 8px 18px rgba(74,91,88,.1); }
+.profile-lilac { background: #f5f0f7; }
+.profile-mint { background: #edf5f0; }
+.profile-avatar { display: grid; width: 42px; height: 42px; flex: 0 0 auto; place-items: center; border: 1px solid rgba(255,255,255,.9); border-radius: 15px; background: rgba(255,255,255,.7); color: #536f75; font-family: Georgia,serif; font-size: 21px; box-shadow: 0 2px 6px rgba(49,66,73,.07); }
+.profile-tile b { display: block; color: #334650; font-size: 15px; }
+.profile-tile small { display: block; margin-top: 4px; color: #7e8a90; font-size: 11px; }
+.day-count { color: #456e68; font-family: Georgia,serif; font-size: 30px; font-weight: 600; white-space: nowrap; }
+.day-count small { color: #91a09d; font-family: Arial,sans-serif; font-size: 12px; font-weight: 500; }
+.journey-track { position: relative; height: 9px; margin: 21px 12px 10px 0; border-radius: 99px; background: #e7ebe6; }
+.journey-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg,#a9c6bb,#627f70); transition: width .3s ease; }
+.journey-hut { position: absolute; top: 50%; right: -10px; display: grid; width: 30px; height: 30px; place-items: center; transform: translateY(-50%); border: 2px solid white; border-radius: 11px; background: #e5b978; color: #fffaf1; font-size: 20px; box-shadow: 0 3px 8px rgba(93,103,84,.16); }
+.dashboard-scene { min-height: 286px; }
+.dashboard-wash { background: linear-gradient(90deg, rgba(255,252,246,.96) 0%, rgba(255,251,246,.89) 34%, rgba(255,250,244,.50) 55%, rgba(255,250,244,.05) 77%); }
+.dashboard-copy { position: absolute; top: 28px; left: clamp(22px,4vw,46px); width: min(470px,57%); }
+.dashboard-copy h1 { margin: 9px 0 3px; color: #293f50; font-family: Georgia,'Times New Roman',serif; font-size: clamp(27px,3vw,39px); font-weight: 600; letter-spacing: -.04em; }
+.dashboard-copy > p { margin: 0; color: #6c7d85; font-size: 13px; }
+.daily-trail-progress { margin-top: 22px; max-width: 300px; color: #587069; font-size: 11px; }
+.daily-trail-progress b { color: #415d58; font-size: 11px; }
+.daily-trail-track { height: 6px; margin-top: 8px; overflow: hidden; border-radius: 99px; background: rgba(100,128,118,.16); }
+.daily-trail-track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#9cbbac,#567b6e); transition: width .25s ease; }
+.scene-profile-control { position: absolute; top: 20px; right: 21px; display: grid; gap: 5px; border: 1px solid rgba(255,255,255,.82); border-radius: 15px; padding: 10px 13px; background: rgba(255,252,246,.78); color: #71817f; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; backdrop-filter: blur(12px); }
+.scene-profile-control select { max-width: 175px; border: 0; outline: 0; background: transparent; color: #344c54; font-size: 12px; font-weight: 700; letter-spacing: 0; text-transform: none; }
+.scene-milestone { position: absolute; right: 23px; bottom: 20px; border: 1px solid rgba(255,255,255,.8); border-radius: 999px; padding: 9px 13px; background: rgba(255,251,243,.73); color: #657875; font-size: 10px; font-weight: 700; backdrop-filter: blur(10px); }
+.scene-milestone span { margin-left: 6px; color: #cb955d; }
+.dashboard-page > header { color: #697b83; }
+.date-control { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; border: 1px solid #e5e0d8; border-radius: 18px; padding: 13px 16px; background: rgba(255,255,255,.75); box-shadow: 0 4px 14px rgba(63,77,76,.04); }
+.date-control input { border-color: #e4dfd7; background: #fffdfa; }
+.checklist-card { border-color: #e4dfd8; box-shadow: 0 8px 24px rgba(67,78,76,.06); }
+.checklist-card > div:first-child { background: #fffdfa; }
+.summary-card { background: linear-gradient(145deg,#344f50 0%,#283e45 100%); box-shadow: 0 14px 30px rgba(40,62,69,.17); }
+
+@media (max-width: 720px) {
+  .landing-scene { min-height: 410px; }
+  .scene-wash { background: linear-gradient(180deg, rgba(255,252,247,.91) 0%, rgba(255,251,246,.77) 36%, rgba(255,250,244,.12) 75%); }
+  .scene-copy { top: 32px; left: 23px; width: calc(100% - 46px); transform: none; }
+  .landing-copy h1 { margin-top: 14px; font-size: clamp(40px,12vw,58px); }
+  .landing-copy p { max-width: 290px; margin-top: 12px; font-size: 14px; }
+  .scene-caption { right: 13px; bottom: 13px; font-size: 10px; }
+  .landing-panels { grid-template-columns: 1fr; gap: 13px; margin-top: 14px; }
+  .panel-card { border-radius: 21px; padding: 19px; }
+  .dashboard-scene { min-height: 320px; }
+  .dashboard-wash { background: linear-gradient(180deg,rgba(255,252,247,.94) 0%,rgba(255,251,246,.88) 49%,rgba(255,250,244,.1) 84%); }
+  .dashboard-copy { top: 22px; left: 20px; width: calc(100% - 40px); }
+  .dashboard-copy h1 { max-width: 68%; font-size: 29px; }
+  .dashboard-copy > p { max-width: 70%; font-size: 11px; }
+  .dashboard-copy .scene-kicker { max-width: 68%; font-size: 9px; line-height: 1.4; }
+  .daily-trail-progress { max-width: 230px; margin-top: 15px; }
+  .scene-profile-control { top: auto; right: 13px; bottom: 13px; padding: 8px 10px; }
+  .scene-profile-control select { max-width: 140px; font-size: 11px; }
+  .scene-milestone { right: auto; bottom: 18px; left: 15px; padding: 8px 10px; font-size: 9px; }
+}
