@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Check, Cloud, Snowflake, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Cloud, LockKeyhole, Snowflake, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { WinterScene } from "@/components/winter-scene";
 import { calculateDailyScore } from "@/lib/domain/scoring";
@@ -28,6 +28,11 @@ function totalPointsForProfile(profileId: string, habits: Habit[], entries: Entr
 }
 
 export default function Home() {
+  const [unlocked, setUnlocked] = useState(false);
+  const [unlockReady, setUnlockReady] = useState(false);
+  const [passcode, setPasscode] = useState("");
+  const [passcodeError, setPasscodeError] = useState("");
+  const [checkingPasscode, setCheckingPasscode] = useState(false);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [profileTotals, setProfileTotals] = useState<Record<string, number>>({});
@@ -46,6 +51,12 @@ export default function Home() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    setUnlocked(sessionStorage.getItem("winter-arc-unlocked") === "yes");
+    setUnlockReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!unlocked) return;
     if (!supabase) { setSetupError("Connect Supabase to start tracking. Add your project URL and publishable key to .env.local, then restart the app and run the database migration."); return; }
     const client = supabase;
     Promise.all([
@@ -55,10 +66,10 @@ export default function Home() {
       if (p.error || h.error) { setSetupError(p.error?.message ?? h.error?.message ?? "Could not load setup data."); return; }
       setProfiles((p.data ?? []) as Profile[]); setHabits((h.data ?? []) as Habit[]);
     });
-  }, []);
+  }, [unlocked]);
 
   useEffect(() => {
-    if (profile || !supabase || profiles.length === 0 || habits.length === 0) return;
+    if (!unlocked || profile || !supabase || profiles.length === 0 || habits.length === 0) return;
     const client = supabase;
     let cancelled = false;
     setTotalsError("");
@@ -73,10 +84,10 @@ export default function Home() {
       setProfileTotals(Object.fromEntries(profiles.map((person) => [person.id, totalPointsForProfile(person.id, habits, entries, adjustments)])));
     });
     return () => { cancelled = true; };
-  }, [profile, profiles, habits]);
+  }, [unlocked, profile, profiles, habits]);
 
   const loadDay = useCallback(async () => {
-    if (!supabase || !profile || !isChallengeDate(date)) return;
+    if (!unlocked || !supabase || !profile || !isChallengeDate(date)) return;
     setLoading(true); setError("");
     const [dayRows, dayAdjustments, totalRows, totalAdj] = await Promise.all([
       supabase.from("daily_entries").select("id,habit_id,date,completed,default_points_snapshot,points_adjustment,adjustment_reason").eq("profile_id", profile.id).eq("date", date),
@@ -95,7 +106,7 @@ export default function Home() {
     setEntries(state); setAdjustments((dayAdjustments.data ?? []) as Adjustment[]);
     setAllEntries((totalRows.data ?? []) as Entry[]); setAllAdjustments((totalAdj.data ?? []) as Adjustment[]);
     setSaveStatus("saved"); setLoading(false);
-  }, [date, habits, profile]);
+  }, [date, habits, profile, unlocked]);
 
   useEffect(() => { void loadDay(); }, [loadDay]);
 
@@ -187,7 +198,48 @@ export default function Home() {
   const today = localDateString();
   const dayNumber = challengeDay(date);
   const canEditDate = isChallengeDate(date) && date <= today;
-  const done = habits.length > 0 && score.completedCount === habits.length;
+  const allHabitsDone = habits.length > 0 && score.completedCount === habits.length;
+  const done = score.isPerfect;
+
+  const submitPasscode = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!passcode.trim()) { setPasscodeError("Enter your passcode to continue."); return; }
+    setCheckingPasscode(true); setPasscodeError("");
+    try {
+      const response = await fetch("/api/passcode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ passcode }),
+      });
+      const result = await response.json();
+      if (!response.ok) { setPasscodeError(result.message ?? "Couldn’t check that passcode. Try again."); return; }
+      sessionStorage.setItem("winter-arc-unlocked", "yes");
+      setUnlocked(true); setPasscode("");
+    } catch {
+      setPasscodeError("Couldn’t reach the passcode check. Check your connection and try again.");
+    } finally {
+      setCheckingPasscode(false);
+    }
+  };
+
+  if (!unlockReady) return <main className="winter-page landing-page passcode-page"><p className="passcode-loading">Preparing your winter trail…</p></main>;
+  if (!unlocked) return <main className="winter-page landing-page passcode-page">
+    <div className="passcode-wrap">
+      <div className="mb-5 flex items-center justify-center gap-3 text-[#405e72]"><div className="rounded-2xl border border-white/80 bg-white/80 p-2.5 shadow-sm backdrop-blur"><Snowflake size={23}/></div><span className="text-xs font-bold uppercase tracking-[.22em]">Winter Arc · 2026</span></div>
+      <div className="passcode-scenery"><WinterScene className="scene-art"/><div className="scene-wash"/><span className="passcode-scenery-caption">Your winter trail is just ahead <span>✦</span></span></div>
+      <form className="passcode-card" onSubmit={submitPasscode}>
+        <div className="passcode-lock"><LockKeyhole size={20}/></div>
+        <span className="section-eyebrow">A little secret to begin</span>
+        <h1>Welcome to your winter trail</h1>
+        <p>Enter your passcode to open the challenge and see your progress.</p>
+        <label htmlFor="winter-passcode">Passcode</label>
+        <input id="winter-passcode" type="password" inputMode="numeric" autoComplete="current-password" value={passcode} onChange={(event) => setPasscode(event.target.value)} placeholder="Enter your digits" aria-describedby={passcodeError ? "passcode-error" : undefined} />
+        {passcodeError && <div id="passcode-error" className="passcode-error" role="alert">{passcodeError}</div>}
+        <button type="submit" disabled={checkingPasscode} className="passcode-submit">{checkingPasscode ? "Checking…" : <>Open the trail <ArrowRight size={17}/></>}</button>
+        <small className="passcode-note">A cozy little gate for your shared challenge.</small>
+      </form>
+    </div>
+  </main>;
 
   if (!profile) {
     const ready = profiles.length === 2 && habits.length === 10;
@@ -241,7 +293,7 @@ export default function Home() {
         {setupError && <p className="mb-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-900">{setupError}</p>}{error && <p className="mb-4 rounded-xl bg-rose-50 p-4 text-sm text-rose-800">{error}</p>}
         {!isChallengeDate(date) && <p className="mb-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-900">Choose a date between November 17 and December 21, 2026.</p>}
         <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4"><Metric label="Today’s score" value={score.finalScore.toFixed(1).replace(/\.0$/, "")}/><Metric label="Habits complete" value={`${score.completedCount} / ${habits.length || 10}`}/><Metric label="Progress" value={`${habits.length ? Math.round(score.completedCount / habits.length * 100) : 0}%`}/><Metric label="Total points" value={totals.toFixed(1).replace(/\.0$/, "")}/></div>
-        <section className="checklist-card overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"><div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 md:px-6"><div><h2 className="font-semibold">Daily checklist</h2><p className="mt-0.5 text-sm text-slate-500">Complete what you can. Every bit counts.</p></div><span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${done ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"}`}>{done ? "Perfect day · 1.5×" : "In progress"}</span></div>
+        <section className="checklist-card overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"><div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 md:px-6"><div><h2 className="font-semibold">Daily checklist</h2><p className="mt-0.5 text-sm text-slate-500">Complete what you can. Every bit counts.</p></div><span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${done ? "bg-emerald-100 text-emerald-800" : allHabitsDone ? "bg-amber-100 text-amber-900" : "bg-slate-100 text-slate-600"}`}>{done ? "Perfect day · 1.5×" : allHabitsDone ? "All done · deduction removes bonus" : "In progress"}</span></div>
           {loading ? <div className="p-8 text-center text-sm text-slate-500">Loading check-in…</div> : <div className="divide-y divide-slate-100">{habits.map((habit) => { const row = entries[habit.id] ?? { completed: false, adjustment: "", reason: "" }; const effective = (row.completed ? Number(row.saved?.default_points_snapshot ?? habit.default_points) : 0) + Number(row.adjustment || 0); return <div key={habit.id} className={`grid grid-cols-[auto_minmax(0,1fr)_70px] items-center gap-3 px-4 py-4 md:grid-cols-[auto_minmax(0,1fr)_92px_110px] md:gap-4 md:px-6 ${row.completed ? "bg-sky-50/40" : ""}`}>
             <button aria-label={row.completed ? `Mark ${habit.name} incomplete` : `Mark ${habit.name} complete`} disabled={viewOnly || !canEditDate} onClick={() => updateHabit(habit, { completed: !row.completed })} className={`flex h-7 w-7 items-center justify-center rounded-full border ${row.completed ? "border-sky-700 bg-sky-700 text-white" : "border-slate-300 bg-white text-transparent hover:border-sky-500"}`}><Check size={15}/></button>
             <div className="min-w-0"><p className={`font-medium ${row.completed ? "text-slate-500 line-through" : "text-slate-900"}`}>{habit.code === "H10" ? "Journal and Photo Entry" : habit.name}</p><p className="mt-0.5 text-xs leading-5 text-slate-500">{habit.code === "H10" ? "Mark this daily habit complete" : habit.description}</p><div className="mt-2 flex gap-2 md:hidden"><input disabled={viewOnly || !canEditDate} aria-label={`${habit.name} point adjustment`} type="number" step="0.5" value={row.adjustment} placeholder="± pts" onChange={(e) => setEntries((cur) => ({ ...cur, [habit.id]: { ...row, adjustment: e.target.value } }))} onBlur={(e) => updateHabit(habit, { adjustment: e.target.value })} className="w-20 rounded-lg border border-slate-200 px-2 py-1 text-xs"/><input disabled={viewOnly || !canEditDate} aria-label={`${habit.name} adjustment reason`} placeholder="Reason (optional)" value={row.reason} onChange={(e) => setEntries((cur) => ({ ...cur, [habit.id]: { ...row, reason: e.target.value } }))} onBlur={(e) => updateHabit(habit, { reason: e.target.value })} className="min-w-0 flex-1 rounded-lg border border-slate-200 px-2 py-1 text-xs"/></div></div>

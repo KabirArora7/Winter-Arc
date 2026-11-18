@@ -74,6 +74,26 @@ button { cursor: pointer; }
 .scene-milestone { position: absolute; right: 23px; bottom: 20px; border: 1px solid rgba(255,255,255,.8); border-radius: 999px; padding: 9px 13px; background: rgba(255,251,243,.73); color: #657875; font-size: 10px; font-weight: 700; backdrop-filter: blur(10px); }
 .scene-milestone span { margin-left: 6px; color: #cb955d; }
 .dashboard-page > header { color: #697b83; }
+.passcode-page { display: grid; min-height: 100vh; align-items: center; padding: 28px 18px; background: radial-gradient(ellipse at 15% 10%, #fffaf2 0, transparent 46%), linear-gradient(155deg, #f4f0eb 0%, #edf2ef 100%); }
+.passcode-wrap { width: min(100%, 500px); margin: auto; }
+.passcode-loading { margin: 0; color: #748782; font-family: Georgia,serif; text-align: center; }
+.passcode-scenery { position: relative; height: 226px; overflow: hidden; border: 1px solid rgba(255,255,255,.85); border-radius: 28px; background: #dce8ed; box-shadow: 0 14px 34px rgba(71,88,96,.1); }
+.passcode-scenery .scene-wash { background: linear-gradient(0deg,rgba(255,250,243,.34),transparent 58%); }
+.passcode-scenery-caption { position: absolute; right: 14px; bottom: 13px; border: 1px solid rgba(255,255,255,.8); border-radius: 99px; padding: 8px 11px; background: rgba(255,251,243,.77); color: #617774; font-size: 10px; font-weight: 700; backdrop-filter: blur(8px); }
+.passcode-scenery-caption span { margin-left: 5px; color: #c78a50; }
+.passcode-card { position: relative; width: calc(100% - 32px); margin: -25px auto 0; padding: 27px 26px 22px; border: 1px solid #e7e2da; border-radius: 25px; background: rgba(255,253,249,.97); box-shadow: 0 17px 42px rgba(56,73,76,.14); }
+.passcode-lock { display: grid; width: 42px; height: 42px; margin-bottom: 14px; place-items: center; border: 1px solid #e5e2d9; border-radius: 15px; background: #f4f4ed; color: #658177; }
+.passcode-card h1 { margin: 2px 0 7px; color: #2b414d; font-family: Georgia,'Times New Roman',serif; font-size: clamp(25px,6vw,31px); font-weight: 600; letter-spacing: -.035em; }
+.passcode-card > p { margin: 0 0 19px; color: #718087; font-size: 13px; line-height: 1.55; }
+.passcode-card > label { display: block; margin-bottom: 7px; color: #53676e; font-size: 11px; font-weight: 800; letter-spacing: .04em; }
+.passcode-card > input { width: 100%; height: 48px; border: 1px solid #dddeda; border-radius: 13px; padding: 0 14px; outline: 0; background: #fff; color: #2c414b; font-size: 17px; letter-spacing: .18em; transition: border-color .15s, box-shadow .15s; }
+.passcode-card > input:focus { border-color: #83a99b; box-shadow: 0 0 0 3px rgba(115,157,139,.14); }
+.passcode-card > input::placeholder { color: #a7b0af; font-size: 13px; letter-spacing: .03em; }
+.passcode-submit { display: flex; width: 100%; min-height: 47px; align-items: center; justify-content: center; gap: 9px; margin-top: 13px; border: 0; border-radius: 14px; background: linear-gradient(110deg,#597c70,#3f665d); color: white; font-size: 13px; font-weight: 800; box-shadow: 0 5px 13px rgba(62,103,92,.2); transition: transform .15s, filter .15s; }
+.passcode-submit:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.05); }
+.passcode-submit:disabled { cursor: wait; opacity: .72; }
+.passcode-error { margin-top: 8px; color: #a54d48; font-size: 12px; }
+.passcode-note { display: block; margin-top: 15px; color: #9aa39e; font-size: 10px; text-align: center; }
 .date-control { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; border: 1px solid #e5e0d8; border-radius: 18px; padding: 13px 16px; background: rgba(255,255,255,.75); box-shadow: 0 4px 14px rgba(63,77,76,.04); }
 .date-control input { border-color: #e4dfd7; background: #fffdfa; }
 .checklist-card { border-color: #e4dfd8; box-shadow: 0 8px 24px rgba(67,78,76,.06); }
@@ -106,4 +126,10 @@ button { cursor: pointer; }
   .scene-profile-control { top: auto; right: 13px; bottom: 13px; padding: 8px 10px; }
   .scene-profile-control select { max-width: 140px; font-size: 11px; }
   .scene-milestone { right: auto; bottom: 18px; left: 15px; padding: 8px 10px; font-size: 9px; }
+}
+
+@media (max-width: 420px) {
+  .passcode-page { padding: 20px 14px; }
+  .passcode-scenery { height: 190px; }
+  .passcode-card { width: calc(100% - 20px); padding: 22px 19px 19px; }
 }

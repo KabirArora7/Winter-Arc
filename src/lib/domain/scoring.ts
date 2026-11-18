@@ -24,7 +24,8 @@ export function calculateDailyScore(
   );
   const generalTotal = generalAdjustments.reduce((sum, points) => sum + points, 0);
   const baseScore = habitScore + generalTotal;
-  const isPerfect = habits.length === 10 && completedCount === 10;
+  const hasDeduction = habits.some((habit) => habit.adjustment < 0) || generalAdjustments.some((points) => points < 0);
+  const isPerfect = habits.length === 10 && completedCount === 10 && !hasDeduction;
 
   return {
     completedCount,

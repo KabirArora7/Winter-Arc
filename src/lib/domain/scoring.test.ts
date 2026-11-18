@@ -26,9 +26,10 @@ test("nine completed habits do not trigger the multiplier", () => {
   assert.equal(calculateDailyScore(habits, []).isPerfect, false);
 });
 
-test("perfect day multiplies a general deduction", () => {
+test("a general deduction prevents the perfect-day multiplier", () => {
   const habits = allHabits().map((habit) => ({ ...habit, completed: true }));
-  assert.equal(calculateDailyScore(habits, [-5]).finalScore, 60);
+  assert.equal(calculateDailyScore(habits, [-5]).finalScore, 40);
+  assert.equal(calculateDailyScore(habits, [-5]).isPerfect, false);
 });
 
 test("perfect day multiplies a general bonus", () => {
@@ -39,6 +40,19 @@ test("perfect day multiplies a general bonus", () => {
 test("an incomplete habit can receive a negative adjustment", () => {
   const habits = allHabits(); habits[0].adjustment = -2;
   assert.equal(calculateDailyScore(habits, []).finalScore, -2);
+});
+
+test("a habit deduction prevents the perfect-day multiplier even when every habit is complete", () => {
+  const habits = allHabits().map((habit) => ({ ...habit, completed: true }));
+  habits[0].adjustment = -2;
+  const score = calculateDailyScore(habits, []);
+  assert.equal(score.finalScore, 43);
+  assert.equal(score.isPerfect, false);
+});
+
+test("any deduction prevents the multiplier even when a bonus offsets it", () => {
+  const habits = allHabits().map((habit) => ({ ...habit, completed: true }));
+  assert.equal(calculateDailyScore(habits, [5, -2]).finalScore, 48);
 });
 
 test("multiple adjustments are summed", () => {
